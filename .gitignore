@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite
+.vscode/
+.idea/
+.venv/
+.env
+*.avi
+*.mp4
+results/
