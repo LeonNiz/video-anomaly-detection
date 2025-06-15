@@ -8,6 +8,5 @@ __pycache__/
 .idea/
 .venv/
 .env
-*.avi
 *.mp4
 results/
