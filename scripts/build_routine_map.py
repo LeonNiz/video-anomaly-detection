@@ -3,6 +3,7 @@ import numpy as np
 import os
 from tqdm import tqdm
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 from scripts.extract_features import extract_video_features
 
 
@@ -36,7 +37,7 @@ def build_routine_map(training_videos_dir):
     return routine_map
 
 
-def build_kmeans_model(training_dir, routine_map, n_clusters=2):
+def build_kmeans_model(training_dir, routine_map, k_range=(2, 6)):
     print("Extracting features for KMeans clustering...")
     all_features = []
 
@@ -48,11 +49,26 @@ def build_kmeans_model(training_dir, routine_map, n_clusters=2):
         all_features.extend(feats)
 
     all_features = np.array(all_features)
-    print(f"Training KMeans on {len(all_features)} samples...")
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(all_features)
+    print(f"Total features: {len(all_features)}")
 
-    # קלאסטר הנורמלי הוא זה עם הכי הרבה מופעים
-    unique, counts = np.unique(kmeans.labels_, return_counts=True)
+    best_k = k_range[0]
+    best_score = -1
+    best_model = None
+
+    print("Searching best K using Silhouette Score...")
+    for k in range(k_range[0], k_range[1] + 1):
+        model = KMeans(n_clusters=k, random_state=0).fit(all_features)
+        score = silhouette_score(all_features, model.labels_)
+        print(f"  K={k}, silhouette score={score:.4f}")
+        if score > best_score:
+            best_k = k
+            best_score = score
+            best_model = model
+
+    print(f"Selected best K={best_k} with silhouette score={best_score:.4f}")
+
+    # קלאסטר הנורמלי = עם הכי הרבה מופעים
+    unique, counts = np.unique(best_model.labels_, return_counts=True)
     normal_cluster = unique[np.argmax(counts)]
 
-    return kmeans, normal_cluster
+    return best_model, normal_cluster

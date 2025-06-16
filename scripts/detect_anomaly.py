@@ -5,7 +5,6 @@ from tqdm import tqdm
 
 
 def detect_anomaly(testing_videos_dir, routine_map, threshold=0.4):
-    #עובר על כל סרטוני הבדיקה ומזהה אנומליות לפי ה-routine_map ןמחזיר מילון
     print("Running anomaly detection on test videos...")
 
     anomaly_scores = {}
@@ -24,14 +23,13 @@ def detect_anomaly(testing_videos_dir, routine_map, threshold=0.4):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             motion = (gray > 25).astype(np.float32)
 
-            # הבדל בין התנועה הנוכחית למפת השגרה
             deviation = np.abs(motion - routine_map)
-            score = deviation.mean()  # ממוצע הסטייה לכל הפריים
+            score = deviation.mean()
 
             scores.append(score)
 
         cap.release()
 
-        anomaly_scores[idx + 1] = scores  # וידאו 1-label.mat → אינדקס 1
+        anomaly_scores[idx + 1] = scores
 
     return anomaly_scores
